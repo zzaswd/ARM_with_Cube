@@ -163,13 +163,13 @@ int main(void)
 		  if(idx==num1){
 			  compare =0;
 		  }
-		  HAL_Delay(100);
+		  HAL_Delay(50);
 	  }
 	  else if(compare ==2){
 		  for(int jdx = 0; jdx< idx; jdx++){
 			  printf("replay....\n\r\n\r");
 			  htim3.Instance->CCR2 = state[jdx];
-			  HAL_Delay(100);
+			  HAL_Delay(50);
 		  }
 	  }
 

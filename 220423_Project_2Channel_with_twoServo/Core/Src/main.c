@@ -72,6 +72,8 @@ int compare = 0;
 int idx = 0;
 int angle1 = 0;
 int angle2 = 0;
+int preVal1;
+int preVal2;
 /* USER CODE END 0 */
 
 /**
@@ -127,14 +129,22 @@ int main(void)
 	  		  }
 
 	  		  HAL_ADC_Start(&hadc2);
-	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�????.
-	  		  adcResult1 = HAL_ADC_GetValue(&hadc2)/2; // 0~4095 // 2048 ~3000?
+	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�???????.
+	  		  int nowVal1 = HAL_ADC_GetValue(&hadc2)*20/12;
+	  		  if(nowVal1 >=preVal1+ 10 ||nowVal1 <=preVal1- 10)
+	  			  preVal1 = HAL_ADC_GetValue(&hadc2)*20/12;
 
+	  		  //adcResult1 = HAL_ADC_GetValue(&hadc2)*20/12; // 0~4095 // 2048 ~3000?
+	  		  adcResult1 = preVal1;
+	  		  HAL_Delay(10);
 	  		  HAL_ADC_Start(&hadc2);
-	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�????.
-	  		  adcResult2 = HAL_ADC_GetValue(&hadc2)/2; // 0~4095 // 2048 ~3000?
-	  		  HAL_ADC_Stop(&hadc2);
-
+	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�???????.
+	  		  int nowVal2 = HAL_ADC_GetValue(&hadc2)*20/12;
+	  		  if(nowVal2 >=preVal2+ 10 ||nowVal2 <=preVal2- 10)
+	  			  preVal2 = HAL_ADC_GetValue(&hadc2)*20/12;
+	  		  //adcResult2 = HAL_ADC_GetValue(&hadc2)*20/12; // 0~4095 // 2048 ~3000?
+	  		  adcResult2 = preVal2;
+	  		  HAL_Delay(10);
 
 	  		  if(adcResult1<1024){
 	  			 angle1 = 1500-(1024-adcResult1);
@@ -160,13 +170,13 @@ int main(void)
 
 
 	  	  else if(compare ==1){
-	  		  HAL_ADC_Start(&hadc2);
-	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�????.
+	  		  /*HAL_ADC_Start(&hadc2);
+	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�???????.
 	  		  adcResult1 = HAL_ADC_GetValue(&hadc2)/2; // 0~4095 // 2048 ~3000?
+	  		//  HAL_Delay(10);
 	  		  HAL_ADC_Start(&hadc2);
-	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�????.
+	  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�???????.
 	  		  adcResult2 = HAL_ADC_GetValue(&hadc2)/2; // 0~4095 // 2048 ~3000?
-	  		  HAL_ADC_Stop(&hadc2);
 
 
 	  		  if(adcResult1<1024){
@@ -189,11 +199,53 @@ int main(void)
 	  		  state[0][idx]= angle1;
 	  		  state[1][idx++]= angle2;
 
-/*	  		  if(idx==num1){
+	  		  if(idx==num1){
 	  			  compare =0;
-	  		  }*/
+	  		  }
 
-	  		  HAL_Delay(50);
+	  		  HAL_Delay(50);*/
+	  		HAL_ADC_Start(&hadc2);
+	  			  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�???????.
+	  			  		  int nowVal1 = HAL_ADC_GetValue(&hadc2)*20/12;
+	  			  		  if(nowVal1 >=preVal1+ 10 ||nowVal1 <=preVal1- 10)
+	  			  			  preVal1 = HAL_ADC_GetValue(&hadc2)*20/12;
+
+	  			  		  //adcResult1 = HAL_ADC_GetValue(&hadc2)*20/12; // 0~4095 // 2048 ~3000?
+	  			  		  adcResult1 = preVal1;
+	  			  		  HAL_Delay(10);
+	  			  		  HAL_ADC_Start(&hadc2);
+	  			  		  HAL_ADC_PollForConversion(&hadc2, 100); // adc값을 받아?��?��까�? ??�???????.
+	  			  		  int nowVal2 = HAL_ADC_GetValue(&hadc2)*20/12;
+	  			  		  if(nowVal2 >=preVal2+ 10 ||nowVal2 <=preVal2- 10)
+	  			  			  preVal2 = HAL_ADC_GetValue(&hadc2)*20/12;
+	  			  		  //adcResult2 = HAL_ADC_GetValue(&hadc2)*20/12; // 0~4095 // 2048 ~3000?
+	  			  		  adcResult2 = preVal2;
+	  			  		  HAL_Delay(10);
+
+	  			  		  if(adcResult1<1024){
+	  			  			 angle1 = 1500-(1024-adcResult1);
+	  			  		  }
+	  			  		  else{
+	  			  			 angle1 = 1500 + adcResult1-1024;
+	  			  		  }
+
+	  			  		  if(adcResult1<1024){
+	  			  			  angle2 = 1500-(1024-adcResult2);
+	  			  		  }
+	  			  		  else{
+	  			  			  angle2 = 1500 + adcResult2-1024;
+	  			  		  }
+
+
+	  			  		htim3.Instance->CCR2 = angle1;
+	  			  		htim3.Instance->CCR4 = angle2;
+	  			  	printf("store....\n\r\n\r");
+
+	  			  		  		  state[0][idx]= angle1;
+	  			  		  		  state[1][idx++]= angle2;
+
+
+	  			  		  		  HAL_Delay(50);
 	  	  }
 
 
@@ -243,14 +295,14 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -294,7 +346,7 @@ static void MX_ADC2_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     Error_Handler();
