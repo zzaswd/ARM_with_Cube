@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "i2c-lcd.c"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,7 +61,7 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+char ADC[20];
 /* USER CODE END 0 */
 
 /**
@@ -96,6 +96,7 @@ int main(void)
   MX_ADC2_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  HAL_ADC_Start(&hadc2);
   lcd_init();
   lcd_send_string("Master!");
   lcd_put_cur(1,0);
@@ -107,6 +108,13 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  HAL_ADC_PollForConversion(&hadc2, 100);
+	  int val = HAL_ADC_GetValue(&hadc2);
+	  lcd_clear();
+	  sprintf(ADC,"ADC : %d",val);
+	  lcd_put_cur(0,0);
+	  lcd_send_string(ADC);
+	  HAL_Delay(500);
 
     /* USER CODE BEGIN 3 */
   }
@@ -255,7 +263,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
