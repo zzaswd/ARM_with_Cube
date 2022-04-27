@@ -21,18 +21,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#ifdef __GNUC__
-/* With GCC, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -67,12 +61,6 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t state[3][1000] = {0};
-int compare = 0;
-int idx = 0;
-int preVal1;
-int preVal2;
-int preVal3;
 
 /* USER CODE END 0 */
 
@@ -83,9 +71,7 @@ int preVal3;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	uint32_t adcResult1 = 0;
-	uint32_t adcResult2 = 0;
-	uint32_t adcResult3 = 0;
+	uint32_t adc_val = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -110,114 +96,22 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  HAL_ADC_Start(&hadc2);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-    {
-  	  	  if(compare ==0){
-  	  		  if(state[0][0] >0){
-  	  			  for(int jdx= 0 ; jdx<3; jdx++){
+  {
+	  HAL_ADC_PollForConversion(&hadc2, 100);
+	  adc_val = HAL_ADC_GetValue(&hadc2); // 2500~3000
 
-  	  				  for(int kdx = 0; kdx<1000; kdx++){
-  	  					state[jdx][kdx] = -1;
-  	  				  }
-  	  			  }
-  	  			  idx = 0;
-  	  		  }
-
-  	  		  HAL_ADC_Start(&hadc2);
-  	  		  HAL_ADC_PollForConversion(&hadc2, 100);
-  	  		  int nowVal1 = HAL_ADC_GetValue(&hadc2)*180/78;
-  	  		  if(nowVal1 >1800) nowVal1 = 1800;
-  	  		  if(nowVal1 >=preVal1+ 10 ||nowVal1 <=preVal1- 10) 	preVal1 = nowVal1;
-  	  		  adcResult1 = preVal1+600;
-
-
-
-  	  		  HAL_ADC_Start(&hadc2);
-  	  		  HAL_ADC_PollForConversion(&hadc2, 100);
-  	  		  int nowVal2 = HAL_ADC_GetValue(&hadc2)*180/78;
-  	  		  if(nowVal2 >1800) nowVal2 = 1800;
-  	  		  if(nowVal2 >=preVal2+ 10 ||nowVal2 <=preVal2- 10)  	preVal2 = nowVal2;
-  	  		  adcResult2 = preVal2+600;
-
-
-
-  	  		  HAL_ADC_Start(&hadc2);
-  	  		  HAL_ADC_PollForConversion(&hadc2, 100);
-  	  		  int nowVal3 = HAL_ADC_GetValue(&hadc2)*180/78;
-  	  		  if(nowVal3 >1800) nowVal3 = 1800;
-  	  		  if(nowVal3 >=preVal3+ 10 ||nowVal3 <=preVal3- 10)  	preVal3 = nowVal3;
-  	  		  adcResult3 = preVal3+600;
-
-
-  	  		  htim3.Instance->CCR2 = adcResult1;
-  	  		  htim3.Instance->CCR1 = adcResult2;
-			  htim3.Instance->CCR4 = adcResult3;
-
-			  printf("angle 1 : %d        angle 2 : %d		angle 3 : %d\n\r",adcResult1,adcResult2,adcResult3);
-  	  	  }
-
-
-  	  	  else if(compare ==1){
-  	  		  HAL_ADC_Start(&hadc2);
-  	  		  HAL_ADC_PollForConversion(&hadc2, 100);
-  	  		  int nowVal1 = HAL_ADC_GetValue(&hadc2)*180/78;
-  	  		  if(nowVal1 >1800) nowVal1 = 1800;
-  	  		  if(nowVal1 >=preVal1+ 10 ||nowVal1 <=preVal1- 10) 	preVal1 = nowVal1;
-  	  		  adcResult1 = preVal1+600;
-
-
-
-  	  		  HAL_ADC_Start(&hadc2);
-  	  		  HAL_ADC_PollForConversion(&hadc2, 100);
-  	  		  int nowVal2 = HAL_ADC_GetValue(&hadc2)*180/78;
-  	  		  if(nowVal2 >1800) nowVal2 = 1800;
-  	  		  if(nowVal2 >=preVal2+ 10 ||nowVal2 <=preVal2- 10)  	preVal2 = nowVal2;
-  	  		  adcResult2 = preVal2+600;
-
-
-
-  	  		  HAL_ADC_Start(&hadc2);
-  	  		  HAL_ADC_PollForConversion(&hadc2, 100);
-  	  		  int nowVal3 = HAL_ADC_GetValue(&hadc2)*180/78;
-  	  		  if(nowVal3 >1800) nowVal3 = 1800;
-  	  		  if(nowVal3 >=preVal3+ 10 ||nowVal3 <=preVal3- 10)  	preVal3 = nowVal3;
-  	  		  adcResult3 = preVal3+600;
-
-
-
-
-  	  		  htim3.Instance->CCR2 = adcResult1;
-  	  		  htim3.Instance->CCR1 = adcResult2;
-  	  		  htim3.Instance->CCR4 = adcResult3;
-  	  		  printf("store....\n\r\n\r");
-
-  	  		  state[0][idx]= adcResult1;
-  	  		  state[1][idx]= adcResult2;
-  	  		  state[2][idx++]= adcResult3;
-
-  	  	 	  HAL_Delay(20);
-  	  	  }
-
-  	  	  else if(compare ==2){
-  	  		  for(int jdx = 0; jdx< idx; jdx++){
-  	  			  printf("replay....\n\r\n\r");
-  	  			  htim3.Instance->CCR2 = state[0][jdx];
-  	  			  htim3.Instance->CCR1 = state[1][jdx];
-  	  			  htim3.Instance->CCR4 = state[2][jdx];
-  	  			  HAL_Delay(20);
-  	  		  }
-  	  	  }
+	  htim3.Instance->CCR1 = (adc_val-2500)*5;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    }
+  }
   /* USER CODE END 3 */
 }
 
@@ -287,13 +181,12 @@ static void MX_ADC2_Init(void)
   /** Common config
   */
   hadc2.Instance = ADC2;
-  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc2.Init.ContinuousConvMode = DISABLE;
-  hadc2.Init.DiscontinuousConvMode = ENABLE;
-  hadc2.Init.NbrOfDiscConversion = 1;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc2.Init.ContinuousConvMode = ENABLE;
+  hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc2.Init.NbrOfConversion = 3;
+  hadc2.Init.NbrOfConversion = 1;
   if (HAL_ADC_Init(&hadc2) != HAL_OK)
   {
     Error_Handler();
@@ -304,24 +197,6 @@ static void MX_ADC2_Init(void)
   sConfig.Channel = ADC_CHANNEL_6;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_7;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_8;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -367,18 +242,10 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 1500;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -405,7 +272,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -460,36 +327,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-PUTCHAR_PROTOTYPE
-{
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the USART1 and Loop until the end of transmission */
-  HAL_UART_Transmit(&huart2,(uint8_t *)&ch, 1, 0xFFFF);
 
-  return ch;
-}
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-
-	if(GPIO_Pin == GPIO_PIN_8){
-		compare =0;
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_RESET);
-	}
-	if(GPIO_Pin == GPIO_PIN_4){
-		compare = 1;
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_RESET);
-	}
-	if(GPIO_Pin == GPIO_PIN_5){
-		compare = 2;
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_3,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_4,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_5,GPIO_PIN_SET);
-	}
-}
 /* USER CODE END 4 */
 
 /**
