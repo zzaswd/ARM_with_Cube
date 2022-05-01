@@ -70,6 +70,8 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN 0 */
 int compare = 0;
 int data[5];
+int idx = 0;
+uint16_t state[4][2000] = {0};
 /* USER CODE END 0 */
 
 /**
@@ -131,6 +133,7 @@ int main(void)
 		  if(end_idx<0){
 			  end_idx +=5;
 		  }
+		 if(servo[idx] +1<data[end_idx] || servo[idx] -1>data[end_idx] )
 		  servo[idx] = data[end_idx];
 	  }
 
@@ -141,23 +144,47 @@ int main(void)
 
 	  if(compare == 0)
 	  {
+		  if(state[0][0]>0){
+			  for(int jdx = 0 ; jdx < 4; jdx ++){
+				  for(int kdx = 0; kdx <2000; kdx ++){
+					  state[jdx][kdx]=  -1;
+				  }
+			  }
+			  idx = 0;
+		  }
+
 		  htim4.Instance -> CCR1 = servo[0] * 10;
 		  htim4.Instance -> CCR2 = servo[1] * 10;
 		  htim4.Instance -> CCR3 = servo[2] * 10;
 		  htim4.Instance -> CCR4 = servo[3] * 10;
+
 		  printf("adc\n\r");
 	  }
 
-	  else if(compare == 1 || compare == 2)
+	  else if(compare == 1)
 	  {
 		  htim4.Instance -> CCR1 = servo[0] * 10;
 		  htim4.Instance -> CCR2 = servo[1] * 10;
 		  htim4.Instance -> CCR3 = servo[2] * 10;
 		  htim4.Instance -> CCR4 = servo[3] * 10;
-		  HAL_Delay(10);
+		  state[0][idx] = servo[0]*10;
+		  state[1][idx] = servo[1]*10;
+		  state[2][idx] = servo[2]*10;
+		  state[3][idx++] = servo[3]*10;
+		  printf("store....\n\r\n\r");
+		  HAL_Delay(20);
 	  }
-	  else{
-		  printf("adasdasdc\n\r");
+	  else if(compare ==2){
+
+		  printf("replay....\n\r");
+		  for(int jdx= 0; jdx<idx ; jdx++){
+			  htim4.Instance -> CCR1 = state[0][jdx];
+			  htim4.Instance -> CCR2 = state[1][jdx];
+			  htim4.Instance -> CCR3 = state[2][jdx];
+			  htim4.Instance -> CCR4 = state[3][jdx];
+
+			  HAL_Delay(20);
+		  }
 	  }
 
 

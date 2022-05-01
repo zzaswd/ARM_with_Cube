@@ -112,14 +112,14 @@ void getAdc(void){
 	HAL_ADC_Start(&hadc2);
 	HAL_ADC_PollForConversion(&hadc2, 100);
 	int nowVal4 = HAL_ADC_GetValue(&hadc2)*180/78;
-	if(nowVal4 >500) nowVal4 = 500;
+	if(nowVal4 >1800) nowVal4 = 1800;
 	if(nowVal4 >=preVal4+ 20 ||nowVal4 <=preVal4- 20)  	preVal4 = nowVal4;
 	adcResult4 = preVal4+600;
 
 	tx_val[0] = (3000-adcResult1)/10;
 	tx_val[1] = (3000-adcResult2)/10;
 	tx_val[2] = (3000-adcResult3)/10;
-	tx_val[3] = adcResult4/10;
+	tx_val[3] = adcResult4*1100/1800;
 
 }
 /* USER CODE END 0 */

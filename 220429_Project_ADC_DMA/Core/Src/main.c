@@ -69,7 +69,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t state[4][2000] = {0};
+//uint16_t state[4][2000] = {0};
 uint16_t preVal1;
 uint16_t preVal2;
 uint16_t preVal3;
@@ -100,15 +100,15 @@ void getAdc(void){
 	  if(nowVal3 >=preVal3+ 20 ||nowVal3 <=preVal2- 20) 	preVal3 = nowVal3;
 	  adcResult3 = preVal3+600;
 
-	  int nowVal4 = dma_val[3]*180/78;
-	  if(nowVal4 >600) nowVal4 = 600;
+	  int nowVal4 = dma_val[3]*500/780;
+	  if(nowVal4 >500) nowVal4 = 500;
 	  if(nowVal4 >=preVal4+ 20 ||nowVal4 <=preVal4- 20) 	preVal4 = nowVal4;
 	  adcResult4 = preVal4+600;
 
-	  if(tx_val[0] + 1 <= (3000-adcResult1)/10 | tx_val[0] - 1 >= (3000-adcResult1)/10 )  tx_val[0] = (3000-adcResult1)/10;
-	  if(tx_val[1] + 1 <= (3000-adcResult2)/10 | tx_val[1] - 1 >= (3000-adcResult2)/10 )  tx_val[1] = (3000-adcResult2)/10;
-	  if(tx_val[2] + 1 <= (3000-adcResult3)/10 | tx_val[2] - 1 >= (3000-adcResult3)/10 )  tx_val[2] = (3000-adcResult3)/10;
-	  if(tx_val[3] + 1 <= (3000-adcResult4)/10 | tx_val[3] - 1 >= (3000-adcResult4)/10 )  tx_val[3] = adcResult4/10;
+	  if(tx_val[0] + 1 <= (3000-adcResult1)/10 || tx_val[0] - 1 >= (3000-adcResult1)/10 )  tx_val[0] = (3000-adcResult1)/10;
+	  if(tx_val[1] + 1 <= (3000-adcResult2)/10 || tx_val[1] - 1 >= (3000-adcResult2)/10 )  tx_val[1] = (3000-adcResult2)/10;
+	  if(tx_val[2] + 1 <= (3000-adcResult3)/10 || tx_val[2] - 1 >= (3000-adcResult3)/10 )  tx_val[2] = (3000-adcResult3)/10;
+	  if(tx_val[3] + 1 <= (3000-adcResult4)/10 || tx_val[3] - 1 >= (3000-adcResult4)/10 )  tx_val[3] = adcResult4/10;
 
 	  /*tx_val[1] = (3000-adcResult2)/10;
 	  tx_val[2] = (3000-adcResult3)/10;
@@ -160,15 +160,15 @@ int main(void)
 
 	  tx_val[4] = compare;
 	  	 if(compare ==0){
-	  	    if(state[0][0] >0){
+/*	  	    if(state[0][0] >0){
 	  	    	for(int jdx= 0 ; jdx<4; jdx++){
 
-	  	    		for(int kdx = 0; kdx<1000; kdx++){
+	  	    		for(int kdx = 0; kdx<2000; kdx++){
 	  	    			state[jdx][kdx] = -1;
 	  	    		}
 	  	    	}
 	  	    	idx = 0;
-	  	    }
+	  	    }*/
 	  	    getAdc();
 	    	printf("angle1 : %d	angle2 : %d	angle3 : %d	angle4 : %d\n\r",tx_val[0],tx_val[1],tx_val[2],tx_val[3]);
 	    }
@@ -178,25 +178,29 @@ int main(void)
 	  		    		getAdc();
 
 	  		    		printf("store....\n\r\n\r");
-
+/*
 	  		    		state[0][idx]= tx_val[0];
 	  		    		state[1][idx]= tx_val[1];
 	  		    		state[2][idx]= tx_val[2];
 	  		    		state[3][idx++]= tx_val[3];
-
-	  		    		HAL_Delay(10);
+*/
+	  		    		HAL_Delay(20);
 	  		    	}
 
 	  		    	else if(compare ==2){
+	  		    		/*
+  		    				HAL_Delay(2000);
 	  		    		for(int jdx = 0; jdx< idx; jdx++){
 	  		    			printf("replay....\n\r\n\r");
 	  		    			tx_val[0] = state[0][jdx];
 	  		    			tx_val[1] = state[1][jdx];
 	  		    			tx_val[2] = state[2][jdx];
 	  		    			tx_val[3] = state[3][jdx];
-
-	  		    			HAL_Delay(10);
-	  		    		}
+*/
+	  		    		printf("replay....\n\r\n\r");
+	  		    		getAdc();
+	  		    			HAL_Delay(20);
+//	  		    		}
 	  		    	}
 
 
@@ -465,6 +469,12 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
