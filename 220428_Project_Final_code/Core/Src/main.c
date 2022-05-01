@@ -211,7 +211,7 @@ int main(void)
 
   	  		  state[0][idx]= 3000-adcResult1;
   	  		  state[1][idx]= 3000-adcResult2;
-  	  		  state[2][idx++]= 3000-adcResult3;
+  	  		  state[2][idx]= 3000-adcResult3;
   	  		  state[3][idx++]= adcResult4;
 
   	  	 	  HAL_Delay(10);

@@ -64,14 +64,10 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int flag=0;
 int IC1,IC2=0;
 int idx = 0;
 uint32_t data =0;
 float time = 0;
-
-
-
 /* USER CODE END 0 */
 
 /**

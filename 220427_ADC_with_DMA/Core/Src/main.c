@@ -76,7 +76,7 @@ static void MX_ADC1_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	uint32_t ADC[1]={0};
+	uint32_t ADC[2]={0};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
