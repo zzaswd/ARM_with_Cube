@@ -68,8 +68,8 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int compare = 0;
 int data[5];
+int compare = 0;
 int idx = 0;
 uint16_t state[4][2000] = {0};
 /* USER CODE END 0 */

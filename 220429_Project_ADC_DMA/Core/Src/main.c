@@ -50,7 +50,6 @@ DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -74,11 +73,14 @@ uint16_t preVal1;
 uint16_t preVal2;
 uint16_t preVal3;
 uint16_t preVal4;
+uint16_t compare = 0;
+int idx = 0;
+
 
 int tx_val[5];
-int idx = 0;
 int dma_val[4];
-uint16_t compare = 0;
+
+
 
 void getAdc(void){
 	uint16_t adcResult1 = 0;
@@ -105,14 +107,20 @@ void getAdc(void){
 	  if(nowVal4 >=preVal4+ 20 ||nowVal4 <=preVal4- 20) 	preVal4 = nowVal4;
 	  adcResult4 = preVal4+600;
 
-	  if(tx_val[0] + 1 <= (3000-adcResult1)/10 || tx_val[0] - 1 >= (3000-adcResult1)/10 )  tx_val[0] = (3000-adcResult1)/10;
-	  if(tx_val[1] + 1 <= (3000-adcResult2)/10 || tx_val[1] - 1 >= (3000-adcResult2)/10 )  tx_val[1] = (3000-adcResult2)/10;
-	  if(tx_val[2] + 1 <= (3000-adcResult3)/10 || tx_val[2] - 1 >= (3000-adcResult3)/10 )  tx_val[2] = (3000-adcResult3)/10;
-	  if(tx_val[3] + 1 <= (3000-adcResult4)/10 || tx_val[3] - 1 >= (3000-adcResult4)/10 )  tx_val[3] = adcResult4/10;
+	  if(tx_val[0] + 1 < (3000-adcResult1)/10 || tx_val[0] - 1 > (3000-adcResult1)/10 )  tx_val[0] = (3000-adcResult1)/10;
+	  if(tx_val[1] + 1 < (3000-adcResult2)/10 || tx_val[1] - 1 > (3000-adcResult2)/10 )  tx_val[1] = (3000-adcResult2)/10;
+	  if(tx_val[2] + 1 < (3000-adcResult3)/10 || tx_val[2] - 1 > (3000-adcResult3)/10 )  tx_val[2] = (3000-adcResult3)/10;
+	  if(tx_val[3] + 1 < (3000-adcResult4)/10 || tx_val[3] - 1 > (3000-adcResult4)/10 )  tx_val[3] = adcResult4/10;
 
-	  /*tx_val[1] = (3000-adcResult2)/10;
-	  tx_val[2] = (3000-adcResult3)/10;
-	  tx_val[3] = adcResult4/10;*/
+	  TxData();
+}
+
+void TxData(void){
+	  HAL_UART_Transmit(&huart1, &tx_val[0],1,100);
+	  HAL_UART_Transmit(&huart1, &tx_val[1],1,100);
+	  HAL_UART_Transmit(&huart1, &tx_val[2],1,100);
+	  HAL_UART_Transmit(&huart1, &tx_val[3],1,100);
+	  HAL_UART_Transmit(&huart1, &tx_val[4],1,100);
 }
 /* USER CODE END 0 */
 
@@ -150,7 +158,6 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADC_Start_DMA(&hadc1, dma_val, 4);
-  HAL_UART_Transmit_DMA(&huart1, tx_val, 5);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -160,48 +167,19 @@ int main(void)
 
 	  tx_val[4] = compare;
 	  	 if(compare ==0){
-/*	  	    if(state[0][0] >0){
-	  	    	for(int jdx= 0 ; jdx<4; jdx++){
-
-	  	    		for(int kdx = 0; kdx<2000; kdx++){
-	  	    			state[jdx][kdx] = -1;
-	  	    		}
-	  	    	}
-	  	    	idx = 0;
-	  	    }*/
 	  	    getAdc();
-	    	printf("angle1 : %d	angle2 : %d	angle3 : %d	angle4 : %d\n\r",tx_val[0],tx_val[1],tx_val[2],tx_val[3]);
 	    }
-
 	  	else if(compare ==1){
+	  		getAdc();
+	  		printf("store....\n\r\n\r");
+	  		HAL_Delay(20);
+	  	}
 
-	  		    		getAdc();
-
-	  		    		printf("store....\n\r\n\r");
-/*
-	  		    		state[0][idx]= tx_val[0];
-	  		    		state[1][idx]= tx_val[1];
-	  		    		state[2][idx]= tx_val[2];
-	  		    		state[3][idx++]= tx_val[3];
-*/
-	  		    		HAL_Delay(20);
-	  		    	}
-
-	  		    	else if(compare ==2){
-	  		    		/*
-  		    				HAL_Delay(2000);
-	  		    		for(int jdx = 0; jdx< idx; jdx++){
-	  		    			printf("replay....\n\r\n\r");
-	  		    			tx_val[0] = state[0][jdx];
-	  		    			tx_val[1] = state[1][jdx];
-	  		    			tx_val[2] = state[2][jdx];
-	  		    			tx_val[3] = state[3][jdx];
-*/
-	  		    		printf("replay....\n\r\n\r");
-	  		    		getAdc();
-	  		    			HAL_Delay(20);
-//	  		    		}
-	  		    	}
+	  	else if(compare ==2){
+	  		printf("replay....\n\r\n\r");
+	  		HAL_UART_Transmit(&huart1, &tx_val[4],1,100);
+	  		HAL_Delay(10);
+	  	}
 
 
     /* USER CODE END WHILE */
@@ -409,9 +387,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
 
 }
 
