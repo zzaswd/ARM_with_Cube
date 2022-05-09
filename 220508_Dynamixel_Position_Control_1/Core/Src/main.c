@@ -39,7 +39,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
@@ -57,6 +57,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 #ifdef __GNUC__
 /* With GCC, small printf (option LD Linker->Libraries->Small printf
    set to 'Yes') calls __io_putchar() */
@@ -120,6 +121,77 @@ unsigned short update_crc(unsigned short crc_accum, unsigned char *data_blk_ptr,
 
     return crc_accum;
 }
+uint8_t rx_data[16]={0};
+
+
+// Operation_mode_select
+// 0x01 : Velocity   0x03 : position
+void Operation_Mode(uint16_t mode){
+
+	unsigned char Select_mode[]  = {0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x0B,0x00,mode,0x00,0x00}; // Operating speed mode length : 13
+	uint16_t CRC_total = update_crc(0x0, Select_mode , 11);
+	uint8_t CRC_H = (CRC_total>>8) & 0x00FF;
+	uint8_t CRC_L = (CRC_total & 0x00FF);
+	Select_mode[11] = CRC_L;
+	Select_mode[12] = CRC_H;
+
+	HAL_UART_Transmit(&huart1, Select_mode, sizeof(Select_mode)/sizeof(unsigned char), 0xFF);
+	HAL_UART_Receive(&huart1, rx_data, 16, 10);
+	for(int idx = 0; idx <16 ; idx ++)
+		   printf("0x%x ",rx_data[idx]);
+	  printf("\r\n");
+}
+
+
+
+// Torque On & Off select
+// On : 0x01    Off : 0x00
+void Torque_OnOff(uint16_t mode){
+
+	unsigned char Select_mode[]  = {0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x40,0x00,mode,0x00,0x00}; // Torque on length : 13
+	uint16_t CRC_total = update_crc(0x0, Select_mode , 11);
+	uint8_t CRC_H = (CRC_total>>8) & 0x00FF;
+	uint8_t CRC_L = (CRC_total & 0x00FF);
+	Select_mode[11] = CRC_L;
+	Select_mode[12] = CRC_H;
+
+	HAL_UART_Transmit(&huart1, Select_mode, sizeof(Select_mode)/sizeof(unsigned char), 0xFF);
+	HAL_UART_Receive(&huart1, rx_data, 16, 10);
+	for(int idx = 0; idx <16 ; idx ++)
+		   printf("0x%x ",rx_data[idx]);
+	  printf("\r\n");
+}
+
+void Set_GoalPosition(uint16_t pos1,uint16_t pos2,uint16_t pos3,uint16_t pos4){
+
+	unsigned char Set_Pos[]  = {0xFF,0xFF,0xFD,0x00,0x01,0x09,0x00,0x03,0x74,0x00,pos1,pos2,pos3,pos4,0x00,0x00}; // Goal Position length : 16
+	uint16_t CRC_total = update_crc(0x0, Set_Pos , 14);
+	uint8_t CRC_H = (CRC_total>>8) & 0x00FF;
+	uint8_t CRC_L = (CRC_total & 0x00FF);
+	Set_Pos[14] = CRC_L;
+	Set_Pos[15] = CRC_H;
+
+	HAL_UART_Transmit(&huart1, Set_Pos, sizeof(Set_Pos)/sizeof(unsigned char), 0xFF);
+	HAL_UART_Receive(&huart1, rx_data, 16, 10);
+	for(int idx = 0; idx <16 ; idx ++)
+		   printf("0x%x ",rx_data[idx]);
+	  printf("\r\n");
+}
+
+void Read_Register(uint16_t reg_L,uint16_t reg_H,uint16_t size){
+	unsigned char Read_Reg[]={0xFF,0xFF,0xFD,0x00,0x01,0x07,0x00,0x02,reg_L,reg_H,size,0x00,0x00,0x00};
+	uint16_t CRC_total = update_crc(0x0, Read_Reg , 12);
+	uint8_t  CRC_H = (CRC_total>>8) & 0x00FF;
+	uint8_t  CRC_L = (CRC_total & 0x00FF);
+	Read_Reg[12] = CRC_L;
+	Read_Reg[13] = CRC_H;
+
+	HAL_UART_Transmit(&huart1, Read_Reg, sizeof(Read_Reg)/sizeof(unsigned char), 0xFF);
+	HAL_UART_Receive(&huart1, rx_data, 16, 10);
+	for(int idx = 0; idx <16 ; idx ++)
+		   printf("0x%x ",rx_data[idx]);
+	  printf("\r\n");
+}
 
 /* USER CODE END 0 */
 
@@ -154,9 +226,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  uint8_t CRC_H;
-  uint8_t CRC_L;
 
+/*
   unsigned char TxPacket_Oper_Speedmode[]= 		{0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x0B,0x00,0x01,0x00,0x00}; // Operating speed mode length : 13
   unsigned char TxPacket_Oper_Positionmode[]= 		{0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x0B,0x00,0x03,0x00,0x00}; // Operating position mode length : 13
 
@@ -164,100 +235,21 @@ int main(void)
   unsigned char TxPacket_Torque_Off[]= 	   		{0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x40,0x00,0x00,0x00,0x00}; // Torque off length : 13
 
   unsigned char TxPacket_Goal_Velocity[]= 	 	{0xFF,0xFF,0xFD,0x00,0x01,0x09,0x00,0x03,0x68,0x00,0x32,0x00,0x00,0x00,0x00,0x00}; // Goal Velocity length : 16
-  unsigned char TxPacket_Goal_Position[]= 	 	{0xFF,0xFF,0xFD,0x00,0x01,0x09,0x00,0x03,0x74,0x00,0x20,0x00,0x00,0x00,0x00,0x00}; // Goal Position length : 16
+  unsigned char TxPacket_Goal_Position[]= 	 	{0xFF,0xFF,0xFD,0x00,0x01,0x09,0x00,0x03,0x74,0x00,0x00,0x02,0x00,0x00,0x00,0x00}; // Goal Position length : 16
 
   unsigned char TxPacket_Change_Direction_Reverse[]= 	{0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x0A,0x00,0x01,0x00,0x00}; // Change Direction_Reverse length : 13
   unsigned char TxPacket_Change_Direction_Normal[]= 	{0xFF,0xFF,0xFD,0x00,0x01,0x06,0x00,0x03,0x0A,0x00,0x00,0x00,0x00}; // Change Direction_Normal length : 13
 
-  unsigned char TxPacket_Read_Register[]= 	{0xFF,0xFF,0xFD,0x00,0x01,0x07,0x00,0x02,0x46,0x00,0x01,0x00,0x00,0x00}; // Change Direction_Normal length : 13
+ // unsigned char TxPacket_Read_Register[]= 	{0xFF,0xFF,0xFD,0x00,0x01,0x07,0x00,0x02,0x46,0x00,0x01,0x00,0x00,0x00}; // Change Direction_Normal length : 13
+  unsigned char TxPacket_Read_Register[]= 	{0xFF,0xFF,0xFD,0x00,0x01,0x07,0x00,0x02,0x84,0x00,0x04,0x00,0x00,0x00}; // Change Direction_Normal length : 13
+*/
 
 
-  uint16_t CRC_total = update_crc(0x0, TxPacket_Oper_Speedmode , 11);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Oper_Speedmode[11] = CRC_L;
-  TxPacket_Oper_Speedmode[12] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Oper_Positionmode , 11);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Oper_Positionmode[11] = CRC_L;
-  TxPacket_Oper_Positionmode[12] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Torque_On , 11);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Torque_On[11] = CRC_L;
-  TxPacket_Torque_On[12] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Torque_Off , 11);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Torque_Off[11] = CRC_L;
-  TxPacket_Torque_Off[12] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Goal_Velocity , 14);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Goal_Velocity[14] = CRC_L;
-  TxPacket_Goal_Velocity[15] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Goal_Position , 14);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Goal_Position[14] = CRC_L;
-  TxPacket_Goal_Position[15] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Change_Direction_Reverse , 11);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Change_Direction_Reverse[11] = CRC_L;
-  TxPacket_Change_Direction_Reverse[12] = CRC_H;
-
-  CRC_total = update_crc(0x0, TxPacket_Change_Direction_Normal , 11);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Change_Direction_Normal[11] = CRC_L;
-  TxPacket_Change_Direction_Normal[12] = CRC_H;
-
-  CRC_total = update_crc(0x46, TxPacket_Read_Register , 12);
-  CRC_H = (CRC_total>>8) & 0x00FF;
-  CRC_L = (CRC_total & 0x00FF);
-  TxPacket_Read_Register[12] = CRC_L;
-  TxPacket_Read_Register[13] = CRC_H;
-
-
-  uint8_t rx_data[16]={0};
-
-  HAL_UART_Transmit(&huart1, TxPacket_Torque_Off, sizeof(TxPacket_Torque_Off)/sizeof(unsigned char), 0xFF);
-  HAL_UART_Receive(&huart1, rx_data, 16, 10);
-  for(int idx = 0; idx <16 ; idx ++)
- 	  printf("0x%x ",rx_data[idx]);
-  printf("\r\n");
-
-  HAL_UART_Transmit(&huart1, TxPacket_Oper_Positionmode, sizeof(TxPacket_Oper_Positionmode)/sizeof(unsigned char), 0xFF);
-  HAL_UART_Receive(&huart1, rx_data, 16, 10);
-  for(int idx = 0; idx <16 ; idx ++)
-	   printf("0x%x ",rx_data[idx]);
-  printf("\r\n");
-
-  HAL_UART_Transmit(&huart1, TxPacket_Torque_On, sizeof(TxPacket_Torque_On)/sizeof(unsigned char), 0xFF);
-  HAL_UART_Receive(&huart1, rx_data, 16, 10);
-  for(int idx = 0; idx <16 ; idx ++)
-	   printf("0x%x ",rx_data[idx]);
-  printf("\r\n");
-
-  HAL_UART_Transmit(&huart1, TxPacket_Goal_Position, sizeof(TxPacket_Goal_Position)/sizeof(unsigned char), 0xFF);
-  HAL_UART_Receive(&huart1, rx_data, 16, 10);
-  for(int idx = 0; idx <16 ; idx ++)
-       printf("0x%x ",rx_data[idx]);
-  printf("\r\n");
-
-  HAL_UART_Transmit(&huart1, TxPacket_Read_Register, sizeof(TxPacket_Read_Register)/sizeof(unsigned char), 0xFF);
-  HAL_UART_Receive(&huart1, rx_data, 16, 10);
-  for(int idx = 0; idx <16 ; idx ++)
-       printf("0x%x ",rx_data[idx]);
-  printf("\r\n");
+  Torque_OnOff(0x00);
+  Operation_Mode(0x03);
+  Torque_OnOff(0x01);
+  Set_GoalPosition(0x00,0x02,0x00,0x00);
+  Read_Register(0x84,0x00,0x04);
 
   /* USER CODE END 2 */
 
