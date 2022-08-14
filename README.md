@@ -8,6 +8,9 @@
 ![image](https://user-images.githubusercontent.com/78605108/184518825-fd706a7d-cb04-4052-bf5b-f21efa4db10e.png)
 ![image](https://user-images.githubusercontent.com/78605108/184518911-c8e1839c-80f3-42ba-8ae8-eee0b2899f18.png)
 
+----------
+### [동작영상_Youtube](https://youtu.be/zgYbxqFnDrg)
+
 -------
 ### 구상
   + 끊이지 않는 공장 사고
@@ -35,7 +38,4 @@
 ----------
 ### 개발 환경
 ![image](https://user-images.githubusercontent.com/78605108/184518915-01f7341e-bf3f-4e8d-9224-02c1422bfe6e.png)
-
-----------
-### [유튜브 링크](https://youtu.be/zgYbxqFnDrg)
 
